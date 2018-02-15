@@ -95,6 +95,19 @@ public class SQProjectResolverTest extends SonarTestCase {
   }
 
   @Test
+  public void testProjectUrlWithEncodedChars() throws Exception {
+    mockSQServer54();
+    //the url points to a branch-build that uses a [branch-category]/[issue-name] pattern
+    //the %2F is an encoded / and must be decoded properly otherwise the project key is wrong
+    String projectKeyWithEncodedChar = "baseProjectKey:branchPrefix%2FSOME-123-Branchname";
+    String projectUrl = SERVER_URL + "/dashboard/index/" + projectKeyWithEncodedChar;
+
+    ProjectInformation proj = resolver.resolve(projectUrl, CE_TASK_ID, SONAR_INSTALLATION_NAME);
+
+    assertThat(proj.getProjectKey()).isEqualTo("baseProjectKey:branchPrefix/SOME-123-Branchname");
+  }
+
+  @Test
   public void testSQ54NoCETask() throws Exception {
     mockSQServer54();
     when(client.getHttp(startsWith(SERVER_URL + WsClient.API_PROJECT_NAME), eq(TOKEN), isNull(String.class))).thenReturn(getFile("projectIndex.json"));

@@ -23,6 +23,9 @@ import hudson.plugins.sonar.client.WsClient.CETask;
 import hudson.plugins.sonar.client.WsClient.ProjectQualityGate;
 import hudson.plugins.sonar.utils.Logger;
 import hudson.plugins.sonar.utils.Version;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Locale;
 import java.util.logging.Level;
 import javax.annotation.CheckForNull;
@@ -138,6 +141,15 @@ public class SQProjectResolver {
 
   @CheckForNull
   static String extractProjectKey(@Nullable String url) {
-    return StringUtils.substringAfterLast(url, "/dashboard/index/");
+      try {
+          //the key is already url-encoded when being extracted from the dashboard url
+          //because the key is always encoded before being used in an URL, we need
+          //decode it here, otherwise already-url-encoded characters will be encoded again
+          // i.e. %2f -> %252f
+          return URLDecoder.decode(StringUtils.substringAfterLast(url, "/dashboard/index/"), "UTF-8");
+      } catch (UnsupportedEncodingException e) {
+          //fall back to undecoded key
+          return StringUtils.substringAfterLast(url, "/dashboard/index/");
+      }
   }
 }
