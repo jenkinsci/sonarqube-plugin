@@ -180,7 +180,7 @@ public class WaitForQualityGateStep extends Step implements Serializable {
       }
 
       log("Checking status of SonarQube task '%s' on server '%s'", step.taskId, step.getInstallationName());
-  
+
       String tokenPlainText = inst.getServerAuthenticationToken().getPlainText();
       String tokenToPass = StringUtils.isBlank(tokenPlainText) ? null : tokenPlainText;
       WsClient wsClient = new WsClient(new HttpClient(), step.getServerUrl(), tokenToPass);
@@ -201,7 +201,7 @@ public class WaitForQualityGateStep extends Step implements Serializable {
     }
 
     private void handleQGStatus(String status) {
-      if (step.isAbortPipeline() && !"OK".equals(status)) {
+      if (step.isAbortPipeline() && "ERROR".equals(status)) {
         getContext().onFailure(new AbortException("Pipeline aborted due to quality gate failure: " + status));
       } else {
         getContext().onSuccess(new QGStatus(status));
