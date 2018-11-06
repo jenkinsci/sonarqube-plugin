@@ -1,7 +1,7 @@
 <div>
     <p>
     This step pauses Pipeline execution and wait for previously submitted SonarQube analysis to be completed and returns
-    quality gate status. Setting the parameter <code>abortPipeline</code> to true will abort the pipeline if quality gate status is not green.
+    quality gate status. Setting the parameter <code>abortPipeline</code> to true will abort the pipeline if quality gate status is red.
     </p>
     <p>
     Note: This step doesn't require an executor.
@@ -46,10 +46,10 @@
           node {
               withSonarQubeEnv('My SonarQube Server') {
                  sh 'mvn clean package sonar:sonar'
-              }    
+              }
           }
       }
-      
+
       stage("Quality Gate"){
           timeout(time: 1, unit: 'HOURS') {
               def qg = waitForQualityGate()
@@ -57,7 +57,7 @@
                   error "Pipeline aborted due to quality gate failure: ${qg.status}"
               }
           }
-      }        
+      }
       </pre></code>
     </p>
 </div>
