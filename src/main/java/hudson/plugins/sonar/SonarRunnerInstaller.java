@@ -20,6 +20,7 @@
 package hudson.plugins.sonar;
 
 import hudson.Extension;
+import org.jenkinsci.Symbol;
 import hudson.tools.DownloadFromUrlInstaller;
 import hudson.tools.ToolInstallation;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -33,7 +34,7 @@ public class SonarRunnerInstaller extends DownloadFromUrlInstaller {
     super(id);
   }
 
-  @Extension
+  @Extension @Symbol("sonar")
   public static final class SonarRunnerInstallerDescriptorImpl extends DownloadFromUrlInstaller.DescriptorImpl<SonarRunnerInstaller> {
     @Override
     public String getDisplayName() {
