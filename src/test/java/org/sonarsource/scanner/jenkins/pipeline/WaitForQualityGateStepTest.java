@@ -41,6 +41,7 @@ import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
+import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.BeforeClass;
@@ -179,12 +180,30 @@ public class WaitForQualityGateStepTest {
   }
 
   @Test
+  public void waitForQualityGateKO_display_warning() {
+    story.then(r -> {
+        QueueTaskFuture<WorkflowRun> pipeline = submitPipeline(false, false, null, false);
+        WorkflowRun b = pipeline.waitForStart();
+
+        submitWebHook(FAKE_TASK_ID_1, "SUCCESS", "KO", b);
+        if (this.declarative) {
+          story.j.assertBuildStatus(Result.SUCCESS, pipeline);
+        } else {
+          story.j.assertBuildStatus(Result.FAILURE, pipeline);
+        }
+        story.j.assertLogContains("SonarQube task '"+ FAKE_TASK_ID_1 + "' marked flow as UNSTABLE because quality gate is 'KO' and abortPipeline is false.", b);
+      }
+    );
+  }
+
+
+  @Test
   public void waitForQualityGate_succeeds_when_no_webhook_secret_id_is_set() {
     story.addStep(new Statement() {
       @Override
       public void evaluate() throws Throwable {
         handler.status1 = "PENDING";
-        QueueTaskFuture<WorkflowRun> pipeline = submitPipeline(true, false, null);
+        QueueTaskFuture<WorkflowRun> pipeline = submitPipeline(true, false, null, true);
         WorkflowRun b = pipeline.waitForStart();
 
         submitWebHook("another task", "FAILURE", "KO", b, WEBHOOK_SECRET);
@@ -200,7 +219,7 @@ public class WaitForQualityGateStepTest {
       @Override
       public void evaluate() throws Throwable {
         handler.status1 = "PENDING";
-        QueueTaskFuture<WorkflowRun> pipeline = submitPipeline(true, false, "");
+        QueueTaskFuture<WorkflowRun> pipeline = submitPipeline(true, false, "", true);
         WorkflowRun b = pipeline.waitForStart();
 
         submitWebHook("another task", "FAILURE", "KO", b, WEBHOOK_SECRET);
@@ -216,7 +235,7 @@ public class WaitForQualityGateStepTest {
       @Override
       public void evaluate() throws Throwable {
         handler.status1 = "PENDING";
-        QueueTaskFuture<WorkflowRun> pipeline = submitPipeline(false, false, WEBHOOK_SECRET_ID);
+        QueueTaskFuture<WorkflowRun> pipeline = submitPipeline(false, false, WEBHOOK_SECRET_ID, true);
         WorkflowRun b = pipeline.waitForStart();
 
         submitWebHook(FAKE_TASK_ID_1, "SUCCESS", "KO", b, WEBHOOK_SECRET);
@@ -233,7 +252,7 @@ public class WaitForQualityGateStepTest {
       @Override
       public void evaluate() throws Throwable {
         handler.status1 = "PENDING";
-        QueueTaskFuture<WorkflowRun> pipeline = submitPipeline(true, false, WEBHOOK_SECRET_ID);
+        QueueTaskFuture<WorkflowRun> pipeline = submitPipeline(true, false, WEBHOOK_SECRET_ID, true);
         WorkflowRun b = pipeline.waitForStart();
 
         submitWebHook("another task", "FAILURE", "KO", b, WEBHOOK_SECRET);
@@ -251,7 +270,7 @@ public class WaitForQualityGateStepTest {
       @Override
       public void evaluate() throws Throwable {
         handler.status1 = "PENDING";
-        QueueTaskFuture<WorkflowRun> pipeline = submitPipeline(true, false, WEBHOOK_SECRET_ID);
+        QueueTaskFuture<WorkflowRun> pipeline = submitPipeline(true, false, WEBHOOK_SECRET_ID, true);
         WorkflowRun b = pipeline.waitForStart();
 
         submitWebHook("another task", "FAILURE", "KO", b, WEBHOOK_SECRET);
@@ -457,10 +476,10 @@ public class WaitForQualityGateStepTest {
   }
 
   private QueueTaskFuture<WorkflowRun> submitPipeline(boolean specifyServer, boolean twoProjects) throws IOException {
-    return submitPipeline(specifyServer, twoProjects, null);
+    return submitPipeline(specifyServer, twoProjects, null, true);
   }
 
-  private QueueTaskFuture<WorkflowRun> submitPipeline(boolean specifyServer, boolean twoProjects, @Nullable String webhookSecretId) throws IOException {
+  private QueueTaskFuture<WorkflowRun> submitPipeline(boolean specifyServer, boolean twoProjects, @Nullable String webhookSecretId, boolean abortPipeline) throws IOException {
     SonarQubeWebHook.get().listeners.clear();
     story.j.jenkins.getDescriptorByType(SonarGlobalConfiguration.class)
       .setInstallations(
@@ -473,35 +492,35 @@ public class WaitForQualityGateStepTest {
     String reportTaskContent2 = "dashboardUrl=" + serverUrl + "/dashboard\\n"
       + "ceTaskId=" + FAKE_TASK_ID_2 + "\\nserverUrl=" + serverUrl + "\\nprojectKey=foo";
     p.setDefinition(new CpsFlowDefinition(
-      script(reportTaskContent1, reportTaskContent2, specifyServer, twoProjects, webhookSecretId),
+      script(reportTaskContent1, reportTaskContent2, specifyServer, twoProjects, webhookSecretId, abortPipeline),
       true));
     return p.scheduleBuild2(0);
   }
 
-  private String script(String reportTaskContent1, String reportTaskContent2, boolean specifyServer, boolean twoProjects, @Nullable String webhookSecretId) {
+  private String script(String reportTaskContent1, String reportTaskContent2, boolean specifyServer, boolean twoProjects, @Nullable String webhookSecretId, boolean abortPipeline) {
     if (this.declarative) {
       StringBuilder pipeline = new StringBuilder();
       pipeline.append("pipeline {\n");
       pipeline.append("  agent none\n");
       pipeline.append("  stages {\n");
-      declarativePipelineOneProject(1, reportTaskContent1, pipeline, webhookSecretId);
+      declarativePipelineOneProject(1, reportTaskContent1, pipeline, webhookSecretId, abortPipeline);
       if (twoProjects) {
-        declarativePipelineOneProject(2, reportTaskContent2, pipeline, webhookSecretId);
+        declarativePipelineOneProject(2, reportTaskContent2, pipeline, webhookSecretId, abortPipeline);
       }
       pipeline.append("  }\n");
       pipeline.append("}");
       return pipeline.toString();
     } else {
       StringBuilder pipeline = new StringBuilder();
-      scriptedPipelineOneProject(1, reportTaskContent1, specifyServer, pipeline, webhookSecretId);
+      scriptedPipelineOneProject(1, reportTaskContent1, specifyServer, pipeline, webhookSecretId, abortPipeline);
       if (twoProjects) {
-        scriptedPipelineOneProject(2, reportTaskContent2, specifyServer, pipeline, webhookSecretId);
+        scriptedPipelineOneProject(2, reportTaskContent2, specifyServer, pipeline, webhookSecretId, abortPipeline);
       }
       return pipeline.toString();
     }
   }
 
-  private void declarativePipelineOneProject(int id, String reportTaskContent, StringBuilder pipeline, @Nullable String webhookSecretId) {
+  private void declarativePipelineOneProject(int id, String reportTaskContent, StringBuilder pipeline, @Nullable String webhookSecretId, boolean abortPipeline) {
     pipeline.append("    stage(\"Scan " + id + "\") {\n");
     pipeline.append("      agent any\n");
     pipeline.append("      steps {\n");
@@ -522,15 +541,15 @@ public class WaitForQualityGateStepTest {
     pipeline.append("    stage(\"Quality Gate " + id + "\") {\n");
     pipeline.append("      steps {\n");
     if (webhookSecretId == null) {
-      pipeline.append("        waitForQualityGate abortPipeline: true \n");
+      pipeline.append("        waitForQualityGate abortPipeline: " + abortPipeline + " \n");
     } else {
-      pipeline.append("        waitForQualityGate abortPipeline: true, webhookSecretId: '" + webhookSecretId + "' \n");
+      pipeline.append("        waitForQualityGate abortPipeline: " + abortPipeline + ", webhookSecretId: '" + webhookSecretId + "' \n");
     }
     pipeline.append("      }\n");
     pipeline.append("    }\n");
   }
 
-  private void scriptedPipelineOneProject(int id, String reportTaskContent, boolean specifyServer, StringBuilder pipeline, @Nullable String webhookSecretId) {
+  private void scriptedPipelineOneProject(int id, String reportTaskContent, boolean specifyServer, StringBuilder pipeline, @Nullable String webhookSecretId, boolean abortPipeline) {
     pipeline.append("node {\n");
     pipeline.append("  dir(path: 'project" + id + "') {\n");
     if (specifyServer) {
@@ -550,9 +569,9 @@ public class WaitForQualityGateStepTest {
     pipeline.append("  }\n");
     pipeline.append("}\n");
     if (webhookSecretId == null) {
-      pipeline.append("def qg" + id + " = waitForQualityGate();\n");
+      pipeline.append("def qg" + id + " = waitForQualityGate(abortPipeline: " + abortPipeline + ");\n");
     } else {
-      pipeline.append("def qg" + id + " = waitForQualityGate(webhookSecretId: '"+ webhookSecretId + "');\n");
+      pipeline.append("def qg" + id + " = waitForQualityGate(abortPipeline: " + abortPipeline + ", webhookSecretId: '"+ webhookSecretId + "');\n");
     }
     pipeline.append("if (qg" + id + ".status != 'OK') {\n");
     pipeline.append("  error 'QG" + id + " failure'\n");

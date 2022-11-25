@@ -30,6 +30,7 @@ import hudson.Util;
 import hudson.model.FreeStyleProject;
 import hudson.model.Item;
 import hudson.model.Queue;
+import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.queue.Tasks;
@@ -60,6 +61,7 @@ import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted;
+import org.jenkinsci.plugins.workflow.actions.WarningAction;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.steps.Step;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
@@ -244,6 +246,16 @@ public class WaitForQualityGateStep extends Step implements Serializable {
         getContext().onFailure(new AbortException("Pipeline aborted due to quality gate failure: " + status));
       } else {
         getContext().onSuccess(new QGStatus(status));
+        if (!"OK".equals(status)) {
+          try {
+            getContext().get(FlowNode.class).addOrReplaceAction(new WarningAction(Result.UNSTABLE).withMessage("Quality Gate failed !"));
+            log("SonarQube task '%s' marked flow as UNSTABLE because quality gate is '%s' and abortPipeline is false.", step.taskId, status);
+          } catch (IOException | InterruptedException e) {
+            //Ignore it
+            getContext().onFailure(e);
+            throw new IllegalStateException(e);
+          }
+        }
       }
     }
 
