@@ -372,7 +372,9 @@ public class JenkinsUtils {
   private String getMavenParams(Orchestrator orchestrator) {
     Version serverVersion = orchestrator.getServer().version();
 
-    if (serverVersion.isGreaterThanOrEquals(5, 3)) {
+    if (serverVersion.isGreaterThanOrEquals(10, 0)) {
+        return "$SONAR_MAVEN_GOAL -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.token=$SONAR_AUTH_TOKEN";
+    } else if (serverVersion.isGreaterThanOrEquals(5, 3)) {
       return "$SONAR_MAVEN_GOAL -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_AUTH_TOKEN";
     } else {
       return "$SONAR_MAVEN_GOAL -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN -Dsonar.password=$SONAR_PASSWORD"

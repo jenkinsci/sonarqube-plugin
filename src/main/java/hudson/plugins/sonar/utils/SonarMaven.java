@@ -97,7 +97,10 @@ public final class SonarMaven extends Maven {
 
     String token = getInstallation().getServerAuthenticationToken(build);
     if (StringUtils.isNotBlank(token)) {
+      // add sonar.login for LTS Version 9.9
       argsBuilder.appendMasked("sonar.login", token);
+      // add sonar.token for Version 10.x
+      argsBuilder.appendMasked("sonar.token", token);
     }
 
     if (build instanceof MavenModuleSetBuild) {

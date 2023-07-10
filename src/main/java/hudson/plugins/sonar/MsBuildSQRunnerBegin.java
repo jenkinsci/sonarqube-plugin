@@ -110,7 +110,10 @@ public class MsBuildSQRunnerBegin extends AbstractMsBuildSQRunner {
     map.put("sonar.host.url", inst.getServerUrl());
     String token = inst.getServerAuthenticationToken(run);
     if (!StringUtils.isBlank(token)) {
+        // add sonar.login for LTS Version 9.9
       map.put("sonar.login", token);
+      // add sonar.token for Version 10.x
+      map.put("sonar.token", token);
     }
 
     return map;
@@ -129,7 +132,7 @@ public class MsBuildSQRunnerBegin extends AbstractMsBuildSQRunner {
     for (Map.Entry<String, String> e : props.entrySet()) {
       if (!StringUtils.isEmpty(e.getValue())) {
         // expand macros using environment variables and hide token
-        boolean hide = e.getKey().contains("sonar.login");
+        boolean hide = e.getKey().contains("sonar.login") || e.getKey().contains("sonar.token");
         args.addKeyValuePair("/d:", e.getKey(), env.expand(e.getValue()), hide);
       }
     }

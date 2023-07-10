@@ -363,7 +363,10 @@ public class SonarRunnerBuilder extends Builder {
       args.append("sonar.host.url", si.getServerUrl());
       String token = si.getServerAuthenticationToken(build);
       if (StringUtils.isNotBlank(token)) {
-        args.appendMasked("sonar.login", token);
+          // add sonar.login for LTS Version 9.9
+          args.appendMasked("sonar.login", token);
+          // add sonar.token for Version 10.x
+          args.appendMasked("sonar.token", token);
       }
     }
 

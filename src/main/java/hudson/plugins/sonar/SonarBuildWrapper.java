@@ -146,7 +146,10 @@ public class SonarBuildWrapper extends SimpleBuildWrapper {
     StringBuilder sb = new StringBuilder();
     sb.append("{ \"sonar.host.url\" : \"").append(escapeJson(hostUrl)).append("\"");
     if (!token.isEmpty()) {
+        // add sonar.login for LTS Version 9.9
       sb.append(", \"sonar.login\" : \"").append(escapeJson(token)).append("\"");
+      // add sonar.token for Version 10.x
+      sb.append(", \"sonar.token\" : \"").append(escapeJson(token)).append("\"");
     }
     String additionalAnalysisProperties = inst.getAdditionalAnalysisProperties();
     if (additionalAnalysisProperties != null) {

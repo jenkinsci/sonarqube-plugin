@@ -137,7 +137,8 @@ public class SonarRunnerBuilderTest extends SonarTestCase {
     builder.populateConfiguration(argsBuilder, build, build.getWorkspace(), listener, env, installation);
 
     assertThat(args.toStringWithQuote())
-      .contains("-Dsonar.login=token");
+      .contains("-Dsonar.login=token")
+      .contains("-Dsonar.token=token");
   }
 
   /**

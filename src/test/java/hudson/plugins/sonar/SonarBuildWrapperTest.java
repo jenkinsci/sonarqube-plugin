@@ -133,7 +133,7 @@ public class SonarBuildWrapperTest extends SonarTestCase {
     assertThat(map).containsEntry("SONAR_EXTRA_PROPS", "-Dkey=myValue -X");
 
     assertThat(map).containsEntry("SONARQUBE_SCANNER_PARAMS",
-      "{ \"sonar.host.url\" : \"http:\\/\\/myserver:10000\", \"sonar.login\" : \"" + MYTOKEN + "\", \"key\" : \"myValue\"}");
+      "{ \"sonar.host.url\" : \"http:\\/\\/myserver:10000\", \"sonar.login\" : \"" + MYTOKEN + "\",  \"sonar.token\" : \"" + MYTOKEN + "\", \"key\" : \"myValue\"}");
   }
 
   @Test
