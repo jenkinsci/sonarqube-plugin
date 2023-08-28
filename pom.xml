@@ -161,7 +161,7 @@
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-ws</artifactId>
-      <version>6.7</version>
+      <version>9.9.1.69595</version>
     </dependency>
     <dependency>
       <!-- needed for SonarPublisher -->
