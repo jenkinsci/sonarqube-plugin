@@ -19,11 +19,28 @@
  */
 package hudson.plugins.sonar.client;
 
+import hudson.plugins.sonar.utils.Logger;
 import okhttp3.OkHttpClient;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
+import org.springframework.beans.InvalidPropertyException;
 
 public class OkHttpClientSingleton {
-  private static final OkHttpClient okHttpClient = new OkHttpClientBuilder().setUserAgent("Scanner for Jenkins").build();
+  private static final long TIME_OUT;
+  static {
+    String timeoutSysPropValue = System.getProperty("plugin.sonar.http.timeout", "10000");
+    try {
+      long value = Long.parseLong(timeoutSysPropValue);
+      TIME_OUT = value;
+    } catch (NumberFormatException e) {
+      String msg = "Unable to create Sonar HTTP client: Invalid value for timeout (system) property 'plugin.sonar.http.timeout': " + timeoutSysPropValue;
+      Logger.LOG.severe(msg);
+      throw new Error(msg, e);
+    }
+  }
+  private static final OkHttpClient okHttpClient = new OkHttpClientBuilder().
+          setConnectTimeoutMs(TIME_OUT).
+          setReadTimeoutMs(TIME_OUT).
+          setUserAgent("Scanner for Jenkins").build();
 
   private OkHttpClientSingleton() {
     // Nothing to do
