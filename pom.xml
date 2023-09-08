@@ -45,8 +45,8 @@
   </ciManagement>
 
   <properties>
-    <revision>2.16</revision>
-    <changelist>-SNAPSHOT</changelist>
+    <revision>2.15.1</revision>
+    <changelist></changelist>
     <gitHubRepo>jenkinsci/sonarqube-plugin</gitHubRepo>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <hudson.version>${project.parent.version}</hudson.version>
@@ -82,7 +82,17 @@
       <dependency>
         <groupId>com.google.protobuf</groupId>
         <artifactId>protobuf-java</artifactId>
-        <version>3.16.3</version>
+        <version>3.21.12</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-stdlib</artifactId>
+        <version>1.6.20</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-stdlib-common</artifactId>
+        <version>1.6.20</version>
       </dependency>
       <dependency>
         <groupId>com.jcraft</groupId>
@@ -161,7 +171,7 @@
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-ws</artifactId>
-      <version>6.7</version>
+      <version>9.9.1.69595</version>
     </dependency>
     <dependency>
       <!-- needed for SonarPublisher -->
@@ -195,6 +205,8 @@
       <artifactId>commons-codec</artifactId>
       <version>1.13</version>
     </dependency>
+
+
 
     <!-- Test deps -->
     <dependency>
