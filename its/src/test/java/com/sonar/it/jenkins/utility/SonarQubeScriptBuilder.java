@@ -21,7 +21,6 @@ package com.sonar.it.jenkins.utility;
 
 import java.nio.file.Paths;
 import java.util.Objects;
-import org.apache.commons.lang3.SystemUtils;
 
 import static com.sonar.it.jenkins.utility.JenkinsUtils.DEFAULT_SONARQUBE_INSTALLATION;
 import static java.util.regex.Matcher.quoteReplacement;

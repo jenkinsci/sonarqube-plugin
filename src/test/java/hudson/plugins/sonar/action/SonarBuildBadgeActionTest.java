@@ -21,7 +21,6 @@ package hudson.plugins.sonar.action;
 
 import hudson.plugins.sonar.SonarTestCase;
 
-import hudson.plugins.sonar.action.SonarBuildBadgeAction;
 import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
