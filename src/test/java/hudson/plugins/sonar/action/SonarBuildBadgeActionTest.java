@@ -22,6 +22,8 @@ package hudson.plugins.sonar.action;
 import hudson.plugins.sonar.SonarTestCase;
 
 import hudson.plugins.sonar.action.SonarBuildBadgeAction;
+import org.jenkins.ui.symbol.Symbol;
+import org.jenkins.ui.symbol.SymbolRequest;
 import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,5 +40,11 @@ public class SonarBuildBadgeActionTest extends SonarTestCase {
     assertThat(action.getDisplayName()).isNotNull();
     assertThat(action.getIcon()).isNotNull();
     assertThat(action.getTooltip()).isNotNull();
+  }
+
+  @Test
+  public void badgeSymbolIsAvailable() {
+    String svg = Symbol.get(new SymbolRequest.Builder().withName("sonarqube").withPluginName("sonar").build());
+    assertThat(svg).contains("currentColor");
   }
 }

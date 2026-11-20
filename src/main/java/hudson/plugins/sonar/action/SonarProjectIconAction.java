@@ -19,11 +19,8 @@
  */
 package hudson.plugins.sonar.action;
 
-import hudson.PluginWrapper;
 import hudson.model.ProminentProjectAction;
 import hudson.plugins.sonar.Messages;
-import hudson.plugins.sonar.SonarPlugin;
-import jenkins.model.Jenkins;
 
 /**
  * {@link ProminentProjectAction} that allows user to go to the Sonar Dashboard.
@@ -44,9 +41,7 @@ public final class SonarProjectIconAction implements ProminentProjectAction {
 
   @Override
   public String getIconFileName() {
-    PluginWrapper wrapper = Jenkins.getInstanceOrNull().getPluginManager()
-      .getPlugin(SonarPlugin.class);
-    return "/plugin/" + wrapper.getShortName() + "/images/SonarQube_Mark.png";
+    return "symbol-sonarqube plugin-sonar";
   }
 
   @Override
