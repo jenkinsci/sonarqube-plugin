@@ -1,37 +1,37 @@
-.sonar-status {
-	color: white;
-	display: inline-block;
-	padding-left: 5px;
-	padding-right: 5px;
-	margin-left: 5px;
-	border: none;
+/* All rules are scoped to .sonar-projects so they never leak into other Jenkins UI. */
+
+table.sonar-projects {
+	margin-left: 20px;
+	color: var(--text-color);
 }
 
-.badge {
+.sonar-projects .badge {
 	display: inline-block;
 	min-width: 10px;
 	padding: 2px 7px;
+	border-radius: 4px;
 	letter-spacing: .03em;
 	color: #fff;
+	background-color: var(--text-color-secondary, #6d6b80);
 	vertical-align: baseline;
 	white-space: nowrap;
 	text-align: center;
 }
 
-.badge-failing {
-	background-color: red;
+.sonar-projects .badge-failing {
+	background-color: var(--error-color, #e6001f);
 }
 
-.badge-warning {
-	background-color: orange;
+.sonar-projects .badge-warning {
+	background-color: var(--warning-color, #fe820a);
 }
 
-.badge-success {
-	background-color: #85bb43;
+.sonar-projects .badge-success {
+	background-color: var(--success-color, #1ea64b);
 }
 
-table.sonar-projects {
-	margin-left: 20px;
+.sonar-projects a:has(.badge) {
+	text-decoration: none;
 }
 
 /* QUALITY GATE */
@@ -47,17 +47,15 @@ table.sonar-projects {
 .sonar-qg-status {
 	display: inline-block;
 	margin-left: 10px;
-	background-color: #4b9fd5;
 }
 
 /* CE TASK */
 .sonar-ce {
-	color: black;
-	font-size: 12px;
-	font-weight: 300;
-	margin-top: 3px; font-size : 14px;
-	padding: 2px;
+	color: var(--text-color-secondary);
 	font-size: 14px;
+	font-weight: 300;
+	margin-top: 3px;
+	padding: 2px;
 }
 
 .sonar-ce-label {
@@ -69,5 +67,4 @@ table.sonar-projects {
 	text-transform: capitalize;
 	margin-left: 10px;
 	font-weight: 600;
-	background-color: #A3A3A3;
 }

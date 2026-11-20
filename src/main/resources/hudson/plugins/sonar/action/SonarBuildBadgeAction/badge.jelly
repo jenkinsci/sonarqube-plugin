@@ -1,6 +1,13 @@
 <?jelly escape-by-default='true'?>
-<a href="${it.urlName}" target="_blank" rel="noopener noreferrer" >
-<img width="16" height="16"
-     title="${it.tooltip}" alt="[sonarqube]"
-     src="${rootURL}${it.icon}"/>
-</a>
+<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout">
+  <j:choose>
+    <j:when test="${it.urlName != null}">
+      <a href="${it.urlName}" target="_blank" rel="noopener noreferrer" tooltip="${it.tooltip}" style="color: var(--text-color-secondary)">
+        <l:icon src="symbol-sonarqube plugin-sonar" class="icon-sm" alt="[sonarqube]"/>
+      </a>
+    </j:when>
+    <j:otherwise>
+      <l:icon src="symbol-sonarqube plugin-sonar" class="icon-sm" tooltip="${it.tooltip}" alt="[sonarqube]"/>
+    </j:otherwise>
+  </j:choose>
+</j:jelly>
